@@ -1,0 +1,43 @@
+type Query {
+  articles: [Article]
+}
+
+type Mutation {
+  postArticle(data: ArticleDto): Article
+  like(article: ID): Article
+}
+
+type Subscription {
+  newArticle: Article
+  likesCountChanged: Article
+}
+
+input ArticleDto {
+  title: String
+  author: ID
+}
+
+type Article {
+  id: ID
+  title: String
+  likesCount: Int
+  author: Author!
+}
+
+type Author {
+  id: ID
+  name: String
+  articles: [Article!]
+  likesCount: Int
+}
+
+fragment ArticleData on Article {
+  id
+  likesCount
+  title
+}
+
+fragment AuthorData on Author {
+  id
+  name
+}

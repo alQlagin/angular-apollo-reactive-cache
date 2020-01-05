@@ -141,12 +141,20 @@
       "schematics": {},
       "architect": {
         "build": {
-          "builder": "@nrwl/node:build",
+          "builder": "@nrwl/workspace:run-commands",
           "options": {
-            "outputPath": "dist/apps/api",
-            "main": "apps/api/src/main.ts",
-            "tsConfig": "apps/api/tsconfig.app.json",
-            "assets": ["apps/api/src/assets"]
+            "commands": [
+              {
+                "command": "rimraf ./dist/apps/api"
+              },
+              {
+                "command": "tsc --project ./apps/api/tsconfig.app.json --outDir ./dist/apps/api"
+              },
+              {
+                "command": "cp ./apps/api/src/app/gql ./dist/apps/api/app -r"
+              }
+            ],
+            "parallel": false
           },
           "configurations": {
             "production": {
@@ -163,9 +171,15 @@
           }
         },
         "serve": {
-          "builder": "@nrwl/node:execute",
+          "builder": "@nrwl/workspace:run-commands",
           "options": {
-            "buildTarget": "api:build"
+            "commands": [
+              {
+                "command": "nodemon --inspect --ext ts,graphql --watch \"apps/api\" --ignore 'apps/**/*.spec.ts' --ignore 'libs/**/*.spec.ts' --exec ts-node --project ./apps/api/tsconfig.app.json -r tsconfig-paths/register ./apps/api/src/main.ts"
+              }
+            ],
+            "parallel": false,
+            "buildTarget": "parent-webapi:build"
           }
         },
         "lint": {
