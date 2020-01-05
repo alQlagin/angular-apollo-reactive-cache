@@ -1,0 +1,24 @@
+{
+  "npmScope": "angular-apollo-reactive-cache",
+  "implicitDependencies": {
+    "angular.json": "*",
+    "package.json": "*",
+    "tsconfig.json": "*",
+    "tslint.json": "*",
+    "nx.json": "*"
+  },
+  "projects": {
+    "angular-apollo-reactive-cache-e2e": {
+      "tags": []
+    },
+    "angular-apollo-reactive-cache": {
+      "tags": []
+    },
+    "api": {
+      "tags": []
+    },
+    "api-interfaces": {
+      "tags": []
+    }
+  }
+}
