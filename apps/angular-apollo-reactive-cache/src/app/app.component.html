@@ -1,8 +1,2 @@
-<div style="text-align:center">
-  <h1>Welcome to angular-apollo-reactive-cache!</h1>
-  <img
-    width="450"
-    src="https://raw.githubusercontent.com/nrwl/nx/master/nx-logo.png"
-  />
-</div>
-<div>Message: {{ hello$ | async | json }}</div>
+<button (click)="showArticles = !showArticles">Toggle</button>
+<angular-apollo-reactive-cache-articles *ngIf="showArticles"></angular-apollo-reactive-cache-articles>
