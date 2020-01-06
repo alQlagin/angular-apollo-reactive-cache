@@ -1,5 +1,9 @@
-<article *ngFor="let article of (articles|async)">
+<article *ngFor="let article of articles|async">
   <h1>{{article.title}}</h1>
   <div>{{article.author.name}} (#{{article.author.id}}) - {{article.author.likesCount}}</div>
-  <div>👍 {{article.likesCount}}</div> <button (click)="like(article)">👍</button>
+  <time>{{article.lastUpdate|date:'full'}}</time>
+  <div class="like-container">
+    Понравилось {{article.likesCount}}
+    <button (click)="like(article)">👍</button>
+  </div>
 </article>

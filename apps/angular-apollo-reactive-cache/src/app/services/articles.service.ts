@@ -2,18 +2,35 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { pluck, shareReplay } from 'rxjs/operators';
 import gql from 'graphql-tag';
 import { Apollo } from 'apollo-angular';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+
+interface WithLikes {
+  likesCount: number
+}
+
+interface Author extends WithLikes {
+  id: number
+  name: string
+}
+
+interface Article extends WithLikes {
+  id: number
+  title: string
+  lastUpdate: string
+  author?: Author
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ArticlesService implements OnDestroy {
   private subscription = new Subscription();
-  private updates = this.apollo.subscribe({
+  private updates = this.apollo.subscribe<Article>({
     query: NEW_LIKE
   });
 
-  private articlesQuery = this.apollo.watchQuery<any>({
+  private articlesQuery = this.apollo.watchQuery<{ articles: Article[] }>({
     query: ARTICLES_QUERY
   });
   private articles = this.articlesQuery.valueChanges.pipe(
@@ -32,7 +49,7 @@ export class ArticlesService implements OnDestroy {
     this.subscription = null;
   }
 
-  getArticles() {
+  getArticles(): Observable<Article[]> {
     this.setupUpdates();
     return this.articles;
   }
@@ -48,7 +65,8 @@ export class ArticlesService implements OnDestroy {
         like: {
           __typename: 'Article',
           id: article.id,
-          likesCount: article.likesCount + 1
+          likesCount: article.likesCount + 1,
+          lastUpdate: new Date().toISOString()
         }
       }
     });
@@ -61,9 +79,12 @@ export class ArticlesService implements OnDestroy {
       this.updates.subscribe()
     );
 
-    const unsubscribe = this.articlesQuery.subscribeToMore({
+    const unsubscribe = this.articlesQuery.subscribeToMore<{ newArticle: Article }>({
       document: NEW_ARTICLE,
-      updateQuery: (prev: any, { subscriptionData }) => {
+      updateQuery: (
+        prev: { articles: Article[] },
+        { subscriptionData }
+      ): { articles: Article[] } => {
         if (!subscriptionData.data) {
           return prev;
         }
@@ -80,49 +101,68 @@ export class ArticlesService implements OnDestroy {
 
 }
 
+const ArticleData = gql`
+  fragment ArticleData on Article {
+    id
+    title
+    likesCount
+    lastUpdate
+  }
+`;
+const AuthorData = gql`
+  fragment AuthorData on Author {
+    id
+    name
+    likesCount
+  }
+`;
+
 const ARTICLES_QUERY = gql`
   query article {
     articles {
-      id
-      title
-      likesCount
+      ...ArticleData
       author {
-        id
-        name
-        likesCount
+        ...AuthorData
       }
     }
-  }`;
+  }
+  ${ArticleData}
+  ${AuthorData}
+`;
 
 export const LIKE_ARTICLE = gql`
   mutation like($id: ID){
     like(article: $id) {
       id
+      lastUpdate
       likesCount
     }
-  }`;
+  }
+`;
 
 export const NEW_ARTICLE = gql`
   subscription {
     newArticle {
-      id
-      title
-      likesCount
+      ...ArticleData
       author {
-        id
-        name
-        likesCount
+        ...AuthorData
       }
     }
-  }`;
+  }
+  ${ArticleData}
+  ${AuthorData}
+`;
 
-const NEW_LIKE = gql`subscription {
-  likesCountChanged {
-    id
-    likesCount
-    author {
+const NEW_LIKE = gql`
+  subscription {
+    likesCountChanged {
       id
       likesCount
+      lastUpdate
+      author {
+        ...AuthorData
+      }
     }
   }
-}`;
+  ${AuthorData}
+`;

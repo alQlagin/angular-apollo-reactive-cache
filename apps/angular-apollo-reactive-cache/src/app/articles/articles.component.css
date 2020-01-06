@@ -1,0 +1,23 @@
+article {
+  display: block;
+  margin: 1rem;
+  padding: 1rem;
+  font-family: sans-serif;
+  box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, .1),
+  2px 2px 3px 0 rgba(0, 0, 0, .2);
+  transition: box-shadow 150ms ease-in-out;
+}
+
+article:hover {
+  box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, .1),
+  4px 4px 3px 0 rgba(0, 0, 0, .2);
+}
+
+h1 {
+  margin: 0;
+}
+
+button {
+  background: transparent;
+  border: none;
+}

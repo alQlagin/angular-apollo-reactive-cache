@@ -53,4 +53,13 @@ export class ArticleResolver {
   author(@Parent() article: Article) {
     return this.authorService.findById(+article.author);
   }
+
+  @ResolveProperty()
+  lastUpdate(@Parent() article: Article) {
+    try {
+      return article.lastUpdate.toISOString();
+    } catch (e) {
+      return null;
+    }
+  }
 }

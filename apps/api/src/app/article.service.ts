@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { timer } from 'rxjs';
+import { mapTo, tap } from 'rxjs/operators';
 
 export interface Article {
   id: number
   title: string
   likesCount: number
+  lastUpdate: Date
   author: number
 }
 
@@ -16,16 +17,19 @@ export class ArticleService {
     id: 1,
     title: 'First Article',
     likesCount: 0,
+    lastUpdate: new Date(),
     author: 1
   }, {
     id: 2,
     title: 'Second Article',
     likesCount: 0,
+    lastUpdate: new Date(),
     author: 2
   }, {
     id: 3,
     title: 'Third Article',
     likesCount: 0,
+    lastUpdate: new Date(),
     author: 1
   }];
 
@@ -36,8 +40,13 @@ export class ArticleService {
   async like(id: Article['id']) {
     const article = this.findById(id);
     if (!article) return;
-    article.likesCount++;
-    return of(article).pipe(delay(5000)).toPromise();
+    return timer(5000).pipe(
+      tap(() => {
+        article.likesCount++;
+        article.lastUpdate = new Date();
+      }),
+      mapTo(article)
+    ).toPromise();
   }
 
   private findById(id: number) {
@@ -52,6 +61,7 @@ export class ArticleService {
     const article: Article = {
       id: ++this.lastId,
       likesCount: 0,
+      lastUpdate: new Date(),
       ...data
     };
     this.list.push(article);
